@@ -1,11 +1,12 @@
 const router = require("express").Router();
 const Users = require("../models/userModels");
 const bcrypt = require("bcryptjs");
+const createToken = require("../auth/token");
 // regustring a user
 
 router.post("/signup", async (req, res) => {
   const { name, email, password } = req.body;
-  const hashedPassword = bcrypt.hashSync(password)
+  const hashedPassword = bcrypt.hashSync(password);
   try {
     const user = await Users({
       name,
@@ -33,14 +34,21 @@ router.post("/login", async (req, res) => {
     existingUser = await Users.findOne({ email });
     if (!existingUser) {
       res.status(404).json({ message: "User does not exist" });
-    } 
+    }
 
     const comparePassword = bcrypt.compareSync(password, existingUser.password);
 
-    if(!comparePassword){
-        res.status(404).json({ message: "Password is wrong" });
-    }else{
-        res.json({message: "You have logged in successfully", result: existingUser})
+    if (!comparePassword) {
+      res.status(404).json({ message: "Password is wrong" });
+    } else {
+      const accessToken = createToken(existingUser);
+      res.cookie("your-access-token", accessToken, {
+         maxAge: 60 * 60 * 24 * 30 * 1000,
+      })
+      res.json({
+        message: "You have logged in successfully",
+        result: existingUser,
+      });
     }
   } catch (err) {
     console.log(err);
