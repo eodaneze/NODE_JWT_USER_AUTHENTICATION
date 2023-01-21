@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const Users = require("../models/userModels");
 const bcrypt = require("bcryptjs");
-const createToken = require("../auth/token");
+const {createToken, validateToken} = require("../auth/token");
 // regustring a user
 
 router.post("/signup", async (req, res) => {
@@ -54,4 +54,8 @@ router.post("/login", async (req, res) => {
     console.log(err);
   }
 });
+
+router.get("/profile", validateToken, (req, res) => {
+    res.send("This is user profile")
+})
 module.exports = router;
