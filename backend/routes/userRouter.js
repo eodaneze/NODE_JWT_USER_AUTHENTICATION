@@ -21,8 +21,24 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-
 // login user
 
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  let existingUser;
 
+  try {
+    existingUser = await Users.findOne({ email });
+    if (!existingUser) {
+      res.status(404).json({ message: "User does not exist" });
+    } else {
+      res.json({
+        message: "You have successfully logged in",
+        result: existingUser,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
 module.exports = router;
